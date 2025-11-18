@@ -1,0 +1,41 @@
+# see https://symfony.com/doc/current/reference/configuration/framework.html
+framework:
+    secret: '%env(APP_SECRET)%'
+    #csrf_protection: true
+    http_method_override: false
+    handle_all_throwables: true
+
+    # Enables session support. Note that the session will ONLY be started if you read or write from it.
+    # Remove or comment this section to explicitly disable session support.
+    session:
+        handler_id: null
+        cookie_secure: auto
+        cookie_samesite: lax
+        storage_factory_id: session.storage.factory.native
+
+    #esi: true
+    #fragments: true
+    php_errors:
+        log: true
+
+    # Performance optimizations
+    serializer:
+        enable_annotations: false
+        mapping:
+            paths: ['%kernel.project_dir%/config/serialization']
+    
+    # HTTP cache for better performance
+    http_cache: true
+    
+    # Rate limiting disabled - requires symfony/rate-limiter component
+    # rate_limiter:
+    #     api_requests:
+    #         policy: 'sliding_window'
+    #         limit: 1000
+    #         interval: '1 hour'
+
+when@test:
+    framework:
+        test: true
+        session:
+            storage_factory_id: session.storage.factory.mock_file

@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Assessment API Documentation</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            margin: 0;
+            padding: 40px;
+            background: #f8f9fa;
+        }
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            padding: 40px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #2c3e50;
+            margin-bottom: 30px;
+        }
+        .endpoint-group {
+            margin-bottom: 30px;
+        }
+        .endpoint-group h2 {
+            color: #34495e;
+            border-bottom: 2px solid #3498db;
+            padding-bottom: 10px;
+        }
+        .endpoint {
+            margin: 15px 0;
+            padding: 15px;
+            background: #f8f9fa;
+            border-radius: 5px;
+            border-left: 4px solid #3498db;
+        }
+        .method {
+            display: inline-block;
+            padding: 4px 8px;
+            border-radius: 3px;
+            font-weight: bold;
+            font-size: 12px;
+            margin-right: 10px;
+        }
+        .get { background: #61affe; color: white; }
+        .post { background: #49cc90; color: white; }
+        .put { background: #fca130; color: white; }
+        .delete { background: #f93e3e; color: white; }
+        .swagger-link {
+            display: inline-block;
+            background: #3498db;
+            color: white;
+            padding: 12px 24px;
+            text-decoration: none;
+            border-radius: 5px;
+            margin: 20px 0;
+            font-weight: bold;
+        }
+        .swagger-link:hover {
+            background: #2980b9;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Assessment API Documentation</h1>
+        <p>A comprehensive video sharing platform API with authentication, video management, social features, and content discovery.</p>
+        
+        <a href="/swagger" class="swagger-link">📖 Interactive API Documentation (Swagger UI)</a>
+        
+        <div class="endpoint-group">
+            <h2>🔐 Authentication</h2>
+            <div class="endpoint">
+                <span class="method post">POST</span>
+                <strong>/api/login</strong> - User login
+            </div>
+            <div class="endpoint">
+                <span class="method post">POST</span>
+                <strong>/api/register</strong> - User registration
+            </div>
+            <div class="endpoint">
+                <span class="method post">POST</span>
+                <strong>/api/refresh</strong> - Refresh JWT token
+            </div>
+            <div class="endpoint">
+                <span class="method post">POST</span>
+                <strong>/api/logout</strong> - User logout
+            </div>
+            <div class="endpoint">
+                <span class="method get">GET</span>
+                <strong>/api/me</strong> - Get current user profile
+            </div>
+        </div>
+
+        <div class="endpoint-group">
+            <h2>🎥 Video Management</h2>
+            <div class="endpoint">
+                <span class="method get">GET</span>
+                <strong>/api/videos</strong> - Get public videos
+            </div>
+            <div class="endpoint">
+                <span class="method post">POST</span>
+                <strong>/api/videos/upload</strong> - Upload a video
+            </div>
+            <div class="endpoint">
+                <span class="method get">GET</span>
+                <strong>/api/videos/{id}</strong> - Get video by ID
+            </div>
+            <div class="endpoint">
+                <span class="method put">PUT</span>
+                <strong>/api/videos/{id}</strong> - Update video
+            </div>
+            <div class="endpoint">
+                <span class="method delete">DELETE</span>
+                <strong>/api/videos/{id}</strong> - Delete video
+            </div>
+            <div class="endpoint">
+                <span class="method get">GET</span>
+                <strong>/api/videos/search</strong> - Search videos
+            </div>
+            <div class="endpoint">
+                <span class="method get">GET</span>
+                <strong>/api/videos/trending</strong> - Get trending videos
+            </div>
+        </div>
+
+        <div class="endpoint-group">
+            <h2>❤️ Video Interactions</h2>
+            <div class="endpoint">
+                <span class="method post">POST</span>
+                <strong>/api/videos/{id}/like</strong> - Like a video
+            </div>
+            <div class="endpoint">
+                <span class="method delete">DELETE</span>
+                <strong>/api/videos/{id}/unlike</strong> - Unlike a video
+            </div>
+            <div class="endpoint">
+                <span class="method post">POST</span>
+                <strong>/api/videos/{id}/view</strong> - Record video view
+            </div>
+        </div>
+
+        <div class="endpoint-group">
+            <h2>📱 Feed</h2>
+            <div class="endpoint">
+                <span class="method get">GET</span>
+                <strong>/api/feed/vertical</strong> - Get vertical feed
+            </div>
+            <div class="endpoint">
+                <span class="method get">GET</span>
+                <strong>/api/feed/home</strong> - Get home feed
+            </div>
+            <div class="endpoint">
+                <span class="method get">GET</span>
+                <strong>/api/feed/trending</strong> - Get trending feed
+            </div>
+            <div class="endpoint">
+                <span class="method get">GET</span>
+                <strong>/api/feed/chronological</strong> - Get chronological feed
+            </div>
+            <div class="endpoint">
+                <span class="method get">GET</span>
+                <strong>/api/feed/creator/{userId}</strong> - Get creator channel
+            </div>
+            <div class="endpoint">
+                <span class="method get">GET</span>
+                <strong>/api/feed/discover</strong> - Get discover feed
+            </div>
+        </div>
+
+        <div class="endpoint-group">
+            <h2>🔍 Search</h2>
+            <div class="endpoint">
+                <span class="method get">GET</span>
+                <strong>/api/search/videos</strong> - Search videos with filters
+            </div>
+            <div class="endpoint">
+                <span class="method get">GET</span>
+                <strong>/api/search/hashtags/{hashtag}</strong> - Search by hashtag
+            </div>
+            <div class="endpoint">
+                <span class="method get">GET</span>
+                <strong>/api/search/suggestions</strong> - Get search suggestions
+            </div>
+            <div class="endpoint">
+                <span class="method get">GET</span>
+                <strong>/api/search/hashtags/trending</strong> - Get trending hashtags
+            </div>
+            <div class="endpoint">
+                <span class="method get">GET</span>
+                <strong>/api/search/categories</strong> - Browse categories
+            </div>
+        </div>
+
+        <div class="endpoint-group">
+            <h2>👤 User Profile</h2>
+            <div class="endpoint">
+                <span class="method get">GET</span>
+                <strong>/api/profile/{id}</strong> - Get user profile
+            </div>
+            <div class="endpoint">
+                <span class="method put">PUT</span>
+                <strong>/api/profile</strong> - Update profile
+            </div>
+            <div class="endpoint">
+                <span class="method post">POST</span>
+                <strong>/api/profile/{id}/follow</strong> - Follow user
+            </div>
+            <div class="endpoint">
+                <span class="method delete">DELETE</span>
+                <strong>/api/profile/{id}/unfollow</strong> - Unfollow user
+            </div>
+            <div class="endpoint">
+                <span class="method get">GET</span>
+                <strong>/api/profile/{id}/followers</strong> - Get user followers
+            </div>
+            <div class="endpoint">
+                <span class="method get">GET</span>
+                <strong>/api/profile/{id}/following</strong> - Get user following
+            </div>
+            <div class="endpoint">
+                <span class="method get">GET</span>
+                <strong>/api/profile/search</strong> - Search users
+            </div>
+        </div>
+
+        <p><strong>Base URL:</strong> http://localhost:8000/api</p>
+        <p><strong>Authentication:</strong> Bearer JWT token in Authorization header</p>
+        
+        <a href="/swagger" class="swagger-link">🚀 Try the API with Swagger UI</a>
+    </div>
+</body>
+</html>

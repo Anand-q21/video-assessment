@@ -1,0 +1,46 @@
+framework:
+    cache:
+        # Unique name of your app: used to compute stable namespaces for cache keys.
+        #prefix_seed: your_vendor_name/app_name
+
+        # The "app" cache stores to the filesystem by default.
+        # The data in this cache should persist between deploys.
+        # Other options include: cache.adapter.redis, cache.adapter.memcached
+        app: cache.adapter.filesystem
+
+        # The "system" cache is for Symfony's internal caching needs.
+        # All "system" caches should use the same adapter.
+        system: cache.adapter.system
+
+        # Performance cache pools
+        pools:
+            doctrine.result_cache_pool:
+                adapter: cache.adapter.filesystem
+                default_lifetime: 3600
+            doctrine.system_cache_pool:
+                adapter: cache.adapter.filesystem
+                default_lifetime: 86400
+            app.cache.videos:
+                adapter: cache.adapter.filesystem
+                default_lifetime: 1800
+            app.cache.feeds:
+                adapter: cache.adapter.filesystem
+                default_lifetime: 300
+            app.cache.users:
+                adapter: cache.adapter.filesystem
+                default_lifetime: 3600
+
+when@test:
+    framework:
+        cache:
+            pools:
+                doctrine.result_cache_pool:
+                    adapter: cache.adapter.array
+                doctrine.system_cache_pool:
+                    adapter: cache.adapter.array
+
+when@prod:
+    framework:
+        cache:
+            # Redis configuration for production
+            default_redis_provider: 'redis://localhost:6379'

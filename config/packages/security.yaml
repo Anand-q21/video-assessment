@@ -1,0 +1,38 @@
+security:
+    # 1. Password Hasher (tells Symfony to use bcrypt)
+    password_hashers:
+        Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface: 'auto'
+
+    # 2. User Provider (tells Symfony to use your User entity)
+    providers:
+        app_user_provider:
+            entity:
+                class: App\Entity\User
+                property: email # The field to log in with
+
+    # 3. Firewalls (the main config)
+    firewalls:
+        dev:
+            pattern: ^/(_(profiler|wdt)|css|images|js)/
+            security: false
+
+        # This firewall handles the /api/login request
+        login:
+            pattern: ^/api/(login|refresh|register)
+            stateless: true
+            security: false
+
+        # This firewall secures the rest of your API
+        api:
+            pattern: ^/api
+            stateless: true
+            jwt:
+                provider: app_user_provider
+
+    # 4. Access Control (Permissions)
+    access_control:
+        - { path: ^/api/(login|refresh|register), roles: PUBLIC_ACCESS }
+        - { path: ^/users/register, roles: PUBLIC_ACCESS }
+        - { path: ^/test, roles: PUBLIC_ACCESS }
+        - { path: ^/simple, roles: PUBLIC_ACCESS }
+        - { path: ^/api, roles: IS_AUTHENTICATED_FULLY }

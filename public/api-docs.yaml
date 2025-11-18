@@ -1,0 +1,795 @@
+openapi: 3.0.3
+info:
+  title: Assessment API - Video Platform
+  description: A comprehensive video sharing platform API with authentication, video management, social features, and content discovery
+  version: 1.0.0
+  contact:
+    name: API Support
+    email: support@example.com
+
+servers:
+  - url: http://localhost:8000/api
+    description: Development server
+
+security:
+  - JWT: []
+
+components:
+  securitySchemes:
+    JWT:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: JWT token for authentication
+
+  schemas:
+    User:
+      type: object
+      properties:
+        id:
+          type: integer
+        email:
+          type: string
+          format: email
+        username:
+          type: string
+        firstName:
+          type: string
+        bio:
+          type: string
+        profilePicture:
+          type: string
+        roles:
+          type: array
+          items:
+            type: string
+        createdAt:
+          type: string
+          format: date-time
+
+    Video:
+      type: object
+      properties:
+        id:
+          type: integer
+        title:
+          type: string
+        description:
+          type: string
+        thumbnailPath:
+          type: string
+        duration:
+          type: integer
+        viewsCount:
+          type: integer
+        likesCount:
+          type: integer
+        status:
+          type: string
+          enum: [uploading, processing, ready, failed]
+        isPublic:
+          type: boolean
+        createdAt:
+          type: string
+          format: date-time
+        user:
+          $ref: '#/components/schemas/User'
+
+    ApiResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+        message:
+          type: string
+        data:
+          type: object
+        errors:
+          type: array
+          items:
+            type: string
+        pagination:
+          type: object
+
+paths:
+  # Authentication Endpoints
+  /login:
+    post:
+      tags:
+        - Authentication
+      summary: User login
+      description: Authenticate user and return JWT tokens
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - email
+                - password
+              properties:
+                email:
+                  type: string
+                  format: email
+                password:
+                  type: string
+      responses:
+        '200':
+          description: Login successful
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponse'
+
+  /register:
+    post:
+      tags:
+        - Authentication
+      summary: User registration
+      description: Register a new user account
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - email
+                - username
+                - password
+              properties:
+                email:
+                  type: string
+                  format: email
+                username:
+                  type: string
+                firstName:
+                  type: string
+                password:
+                  type: string
+                  minLength: 8
+      responses:
+        '200':
+          description: Registration successful
+
+  /refresh:
+    post:
+      tags:
+        - Authentication
+      summary: Refresh JWT token
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                refresh_token:
+                  type: string
+      responses:
+        '200':
+          description: Token refreshed successfully
+
+  /logout:
+    post:
+      tags:
+        - Authentication
+      summary: User logout
+      security:
+        - JWT: []
+      responses:
+        '200':
+          description: Logged out successfully
+
+  /me:
+    get:
+      tags:
+        - Authentication
+      summary: Get current user profile
+      security:
+        - JWT: []
+      responses:
+        '200':
+          description: User profile retrieved
+
+  # Video Management Endpoints
+  /videos:
+    get:
+      tags:
+        - Videos
+      summary: Get public videos
+      parameters:
+        - name: page
+          in: query
+          schema:
+            type: integer
+            default: 1
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            default: 20
+            maximum: 50
+      responses:
+        '200':
+          description: Videos retrieved successfully
+
+  /videos/upload:
+    post:
+      tags:
+        - Videos
+      summary: Upload a video
+      security:
+        - JWT: []
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                video:
+                  type: string
+                  format: binary
+                title:
+                  type: string
+                description:
+                  type: string
+      responses:
+        '200':
+          description: Video uploaded successfully
+
+  /videos/{id}:
+    get:
+      tags:
+        - Videos
+      summary: Get video by ID
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Video retrieved successfully
+    put:
+      tags:
+        - Videos
+      summary: Update video
+      security:
+        - JWT: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                title:
+                  type: string
+                description:
+                  type: string
+                isPublic:
+                  type: boolean
+      responses:
+        '200':
+          description: Video updated successfully
+    delete:
+      tags:
+        - Videos
+      summary: Delete video
+      security:
+        - JWT: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Video deleted successfully
+
+  /videos/search:
+    get:
+      tags:
+        - Videos
+      summary: Search videos
+      parameters:
+        - name: q
+          in: query
+          required: true
+          schema:
+            type: string
+            minLength: 2
+        - name: page
+          in: query
+          schema:
+            type: integer
+            default: 1
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            default: 20
+      responses:
+        '200':
+          description: Search results
+
+  /videos/trending:
+    get:
+      tags:
+        - Videos
+      summary: Get trending videos
+      parameters:
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            default: 20
+      responses:
+        '200':
+          description: Trending videos retrieved
+
+  /videos/user/{userId}:
+    get:
+      tags:
+        - Videos
+      summary: Get user's videos
+      parameters:
+        - name: userId
+          in: path
+          required: true
+          schema:
+            type: integer
+        - name: page
+          in: query
+          schema:
+            type: integer
+            default: 1
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            default: 20
+      responses:
+        '200':
+          description: User videos retrieved
+
+  # Video Interactions
+  /videos/{id}/like:
+    post:
+      tags:
+        - Video Interactions
+      summary: Like a video
+      security:
+        - JWT: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Video liked successfully
+
+  /videos/{id}/unlike:
+    delete:
+      tags:
+        - Video Interactions
+      summary: Unlike a video
+      security:
+        - JWT: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Video unliked successfully
+
+  /videos/{id}/view:
+    post:
+      tags:
+        - Video Interactions
+      summary: Record video view
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: View recorded
+
+  # Feed Endpoints
+  /feed/vertical:
+    get:
+      tags:
+        - Feed
+      summary: Get vertical feed
+      parameters:
+        - name: cursor
+          in: query
+          schema:
+            type: string
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            default: 20
+      responses:
+        '200':
+          description: Vertical feed retrieved
+
+  /feed/home:
+    get:
+      tags:
+        - Feed
+      summary: Get home feed
+      security:
+        - JWT: []
+      parameters:
+        - name: cursor
+          in: query
+          schema:
+            type: string
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            default: 20
+      responses:
+        '200':
+          description: Home feed retrieved
+
+  /feed/trending:
+    get:
+      tags:
+        - Feed
+      summary: Get trending feed
+      parameters:
+        - name: cursor
+          in: query
+          schema:
+            type: string
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            default: 20
+      responses:
+        '200':
+          description: Trending feed retrieved
+
+  /feed/chronological:
+    get:
+      tags:
+        - Feed
+      summary: Get chronological feed
+      parameters:
+        - name: cursor
+          in: query
+          schema:
+            type: string
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            default: 20
+      responses:
+        '200':
+          description: Chronological feed retrieved
+
+  /feed/creator/{userId}:
+    get:
+      tags:
+        - Feed
+      summary: Get creator channel
+      parameters:
+        - name: userId
+          in: path
+          required: true
+          schema:
+            type: integer
+        - name: cursor
+          in: query
+          schema:
+            type: string
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            default: 20
+      responses:
+        '200':
+          description: Creator channel retrieved
+
+  /feed/discover:
+    get:
+      tags:
+        - Feed
+      summary: Get discover feed
+      parameters:
+        - name: cursor
+          in: query
+          schema:
+            type: string
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            default: 20
+        - name: category
+          in: query
+          schema:
+            type: string
+            default: all
+      responses:
+        '200':
+          description: Discover feed retrieved
+
+  # Search Endpoints
+  /search/videos:
+    get:
+      tags:
+        - Search
+      summary: Search videos with filters
+      parameters:
+        - name: q
+          in: query
+          required: true
+          schema:
+            type: string
+            minLength: 2
+        - name: duration
+          in: query
+          schema:
+            type: string
+        - name: uploadDate
+          in: query
+          schema:
+            type: string
+        - name: creator
+          in: query
+          schema:
+            type: string
+        - name: sortBy
+          in: query
+          schema:
+            type: string
+            default: relevance
+        - name: page
+          in: query
+          schema:
+            type: integer
+            default: 1
+      responses:
+        '200':
+          description: Search results
+
+  /search/hashtags/{hashtag}:
+    get:
+      tags:
+        - Search
+      summary: Search videos by hashtag
+      parameters:
+        - name: hashtag
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: page
+          in: query
+          schema:
+            type: integer
+            default: 1
+      responses:
+        '200':
+          description: Hashtag videos retrieved
+
+  /search/suggestions:
+    get:
+      tags:
+        - Search
+      summary: Get search suggestions
+      parameters:
+        - name: q
+          in: query
+          required: true
+          schema:
+            type: string
+            minLength: 2
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            default: 10
+      responses:
+        '200':
+          description: Search suggestions
+
+  /search/hashtags/trending:
+    get:
+      tags:
+        - Search
+      summary: Get trending hashtags
+      parameters:
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            default: 20
+      responses:
+        '200':
+          description: Trending hashtags retrieved
+
+  /search/categories:
+    get:
+      tags:
+        - Search
+      summary: Browse categories
+      responses:
+        '200':
+          description: Categories retrieved
+
+  # User Profile Endpoints
+  /profile/{id}:
+    get:
+      tags:
+        - User Profile
+      summary: Get user profile
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Profile retrieved
+
+  /profile:
+    put:
+      tags:
+        - User Profile
+      summary: Update profile
+      security:
+        - JWT: []
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                username:
+                  type: string
+                firstName:
+                  type: string
+                bio:
+                  type: string
+                profilePicture:
+                  type: string
+      responses:
+        '200':
+          description: Profile updated successfully
+
+  /profile/{id}/follow:
+    post:
+      tags:
+        - User Profile
+      summary: Follow user
+      security:
+        - JWT: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: User followed successfully
+
+  /profile/{id}/unfollow:
+    delete:
+      tags:
+        - User Profile
+      summary: Unfollow user
+      security:
+        - JWT: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: User unfollowed successfully
+
+  /profile/{id}/followers:
+    get:
+      tags:
+        - User Profile
+      summary: Get user followers
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+        - name: page
+          in: query
+          schema:
+            type: integer
+            default: 1
+      responses:
+        '200':
+          description: Followers retrieved
+
+  /profile/{id}/following:
+    get:
+      tags:
+        - User Profile
+      summary: Get user following
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+        - name: page
+          in: query
+          schema:
+            type: integer
+            default: 1
+      responses:
+        '200':
+          description: Following retrieved
+
+  /profile/search:
+    get:
+      tags:
+        - User Profile
+      summary: Search users
+      parameters:
+        - name: q
+          in: query
+          required: true
+          schema:
+            type: string
+            minLength: 2
+        - name: page
+          in: query
+          schema:
+            type: integer
+            default: 1
+      responses:
+        '200':
+          description: Users found
+
+tags:
+  - name: Authentication
+    description: User authentication and authorization
+  - name: Videos
+    description: Video management operations
+  - name: Video Interactions
+    description: Video likes, views, and interactions
+  - name: Feed
+    description: Content feeds and discovery
+  - name: Search
+    description: Search functionality for videos, hashtags, and categories
+  - name: User Profile
+    description: User profile management and social features
