@@ -1,0 +1,12 @@
+{
+  "name": "video-platform-api",
+  "version": "1.0.0",
+  "description": "Video Platform API built with Symfony",
+  "scripts": {
+    "build": "echo 'No build needed for PHP'",
+    "start": "php -S 0.0.0.0:$PORT -t public/"
+  },
+  "engines": {
+    "node": ">=16.0.0"
+  }
+}
