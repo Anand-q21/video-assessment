@@ -1,0 +1,15 @@
+services:
+  - type: web
+    name: video-platform-api
+    env: php
+    buildCommand: composer install --no-dev --optimize-autoloader && php bin/console doctrine:migrations:migrate --no-interaction
+    startCommand: php -S 0.0.0.0:$PORT -t public/
+    envVars:
+      - key: APP_ENV
+        value: prod
+      - key: APP_SECRET
+        generateValue: true
+      - key: DATABASE_URL
+        value: sqlite:///%kernel.project_dir%/var/data.db
+      - key: CORS_ALLOW_ORIGIN
+        value: "*"
