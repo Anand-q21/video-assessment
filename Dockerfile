@@ -33,7 +33,7 @@ COPY . .
 RUN chmod +x start.sh
 
 # Create required directories and set permissions
-RUN mkdir -p var/cache var/log public/uploads \
+RUN mkdir -p var/cache var/log public/uploads config/serialization \
     && chmod -R 777 var/ \
     && chown -R www-data:www-data /var/www
 
