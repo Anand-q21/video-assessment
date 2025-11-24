@@ -1,0 +1,19 @@
+services:
+  - type: web
+    name: video-platform-api
+    env: docker
+    plan: free
+    region: singapore
+    envVars:
+      - key: APP_ENV
+        value: prod
+      - key: APP_DEBUG
+        value: 0
+      - key: APP_SECRET
+        generateValue: true
+      - key: CORS_ALLOW_ORIGIN
+        value: "*"
+      - key: JWT_PASSPHRASE
+        generateValue: true
+      - key: DATABASE_URL
+        sync: false # User must provide this manually from TiDB
