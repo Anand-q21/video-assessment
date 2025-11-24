@@ -101,3 +101,20 @@ Symfony loads environment variables in this order (later overrides earlier):
 2. `.env.local` - Local overrides (gitignored, for your machine)
 3. `.env.prod` - Production defaults (committed to git)
 4. Railway environment variables - Highest priority (set in Railway dashboard)
+
+## 🔧 Troubleshooting
+
+### "DNS_PROBE_FINISHED_NXDOMAIN" Error
+If you see this error, it means **the URL you are trying to access no longer exists**.
+- Railway often generates a **NEW** random domain when you redeploy or recreate a service.
+- **Solution:** Go to Railway Dashboard → Service → Settings → Networking and click the **current** domain link.
+
+### "500 Internal Server Error"
+- Check the **Deployments** logs in Railway.
+- Ensure `DATABASE_URL` is set correctly.
+- Ensure `APP_ENV=prod`.
+
+### "Application Error" or "502 Bad Gateway"
+- The application failed to start.
+- Check logs for "Fatal Error" or "Stopping Container".
+- Ensure `start.sh` is binding to `[::]:$PORT`.
