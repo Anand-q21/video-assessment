@@ -5,4 +5,3 @@ lexik_jwt_authentication:
     token_ttl: 3600
     user_identity_field: email
     clock_skew: 300
-    api_platform: false  # Disable auto-configuration
