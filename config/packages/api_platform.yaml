@@ -2,12 +2,6 @@ api_platform:
     title: 'Assessment API - Video Platform'
     version: '1.0.0'
     description: 'A comprehensive video sharing platform API with authentication, video management, social features, and content discovery'
-    swagger:
-        api_keys:
-            JWT:
-                name: Authorization
-                type: header
-        versions: [3]
     docs_formats:
         jsonld: ['application/ld+json']
         json: ['application/json']
