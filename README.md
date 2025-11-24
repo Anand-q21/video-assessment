@@ -5,7 +5,7 @@ A comprehensive video sharing platform API built with Symfony and API Platform, 
 ## 🚀 Tech Stack
 
 ### Backend Framework
-- **PHP 8.1+** - Core programming language
+- **PHP 8.2+** - Core programming language
 - **Symfony 6.4** - Web application framework
 - **API Platform 4.2** - REST and GraphQL API framework
 - **Doctrine ORM 3.5** - Database abstraction layer
@@ -35,7 +35,7 @@ A comprehensive video sharing platform API built with Symfony and API Platform, 
 
 ## 📋 Prerequisites
 
-- PHP 8.1 or higher
+- PHP 8.2 or higher
 - Composer
 - MySQL 8.0
 - Docker & Docker Compose (optional)
