@@ -40,5 +40,5 @@ RUN composer run-script post-install-cmd --no-interaction || true
 # Expose port
 EXPOSE 8080
 
-# Start command
-CMD ["php", "-S", "0.0.0.0:8080", "-t", "public/"]
+# Start command - use shell form to allow PORT variable substitution
+CMD php -S 0.0.0.0:${PORT:-8080} -t public/
