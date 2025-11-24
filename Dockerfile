@@ -29,6 +29,9 @@ RUN composer install --no-dev --optimize-autoloader --no-scripts --no-interactio
 # Copy project files
 COPY . .
 
+# Make start script executable
+RUN chmod +x start.sh
+
 # Create required directories and set permissions
 RUN mkdir -p var/cache var/log public/uploads \
     && chmod -R 777 var/ \
@@ -41,4 +44,4 @@ RUN composer run-script post-install-cmd --no-interaction || true
 EXPOSE 8080
 
 # Start command - use shell form to allow PORT variable substitution
-CMD php -S 0.0.0.0:${PORT:-8080} -t public/
+CMD ["sh", "start.sh"]
