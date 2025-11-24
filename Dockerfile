@@ -37,8 +37,14 @@ RUN mkdir -p var/cache var/log public/uploads \
     && chmod -R 777 var/ \
     && chown -R www-data:www-data /var/www
 
-# Run post-install scripts
-RUN composer run-script post-install-cmd --no-interaction || true
+# Set production environment
+ENV APP_ENV=prod
+ENV APP_DEBUG=0
+
+# Run post-install scripts and warm up cache
+RUN composer run-script post-install-cmd --no-interaction || true \
+    && php bin/console cache:clear --env=prod --no-debug || true \
+    && php bin/console cache:warmup --env=prod --no-debug || true
 
 # Expose port
 EXPOSE 8080
