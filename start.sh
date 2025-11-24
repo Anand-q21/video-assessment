@@ -13,5 +13,5 @@ else
     echo "Using PORT: $PORT"
 fi
 
-echo "Starting PHP server on 0.0.0.0:$PORT"
-exec php -S "0.0.0.0:$PORT" -t public/
+echo "Starting PHP server on [::]:$PORT"
+exec php -S "[::]:$PORT" -t public/
