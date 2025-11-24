@@ -5,9 +5,3 @@ lexik_jwt_authentication:
     token_ttl: 3600
     user_identity_field: email
     clock_skew: 300
-    
-    # API Platform integration
-    api_platform:
-        check_path: /api/login
-        username_path: email
-        password_path: password

@@ -52,9 +52,10 @@ RUN mkdir -p config/jwt \
 
 # Run post-install scripts, migrations, and warm up cache
 RUN composer run-script post-install-cmd --no-interaction || true \
+    && rm -rf var/cache/* \
     && php bin/console doctrine:database:create --if-not-exists --env=prod --no-debug || true \
     && php bin/console doctrine:migrations:migrate --no-interaction --env=prod --no-debug || true \
-    && php bin/console cache:clear --env=prod --no-debug || true \
+    && php bin/console cache:clear --env=prod --no-debug --no-warmup || true \
     && php bin/console cache:warmup --env=prod --no-debug || true
 
 # Expose port
