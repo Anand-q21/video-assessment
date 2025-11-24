@@ -1,15 +1,26 @@
 services:
   - type: web
     name: video-platform-api
-    env: php
-    buildCommand: composer install --no-dev --optimize-autoloader && php bin/console doctrine:migrations:migrate --no-interaction
-    startCommand: php -S 0.0.0.0:$PORT -t public/
+    env: docker
+    plan: free
     envVars:
       - key: APP_ENV
         value: prod
+      - key: APP_DEBUG
+        value: 0
       - key: APP_SECRET
         generateValue: true
       - key: DATABASE_URL
-        value: sqlite:///%kernel.project_dir%/var/data.db
+        fromDatabase:
+          name: video-platform-db
+          property: connectionString
       - key: CORS_ALLOW_ORIGIN
         value: "*"
+      - key: JWT_PASSPHRASE
+        generateValue: true
+
+databases:
+  - name: video-platform-db
+    plan: free
+    databaseName: video_platform
+    user: video_user
