@@ -40,9 +40,20 @@ RUN mkdir -p var/cache var/log public/uploads \
 # Set production environment
 ENV APP_ENV=prod
 ENV APP_DEBUG=0
+ENV DATABASE_URL="sqlite:///%kernel.project_dir%/var/data.db"
 
-# Run post-install scripts and warm up cache
+# Generate JWT keys if they don't exist
+RUN mkdir -p config/jwt \
+    && if [ ! -f config/jwt/private.pem ]; then \
+    openssl genpkey -algorithm RSA -out config/jwt/private.pem -pkeyopt rsa_keygen_bits:4096; \
+    openssl rsa -pubout -in config/jwt/private.pem -out config/jwt/public.pem; \
+    chmod 644 config/jwt/private.pem config/jwt/public.pem; \
+    fi
+
+# Run post-install scripts, migrations, and warm up cache
 RUN composer run-script post-install-cmd --no-interaction || true \
+    && php bin/console doctrine:database:create --if-not-exists --env=prod --no-debug || true \
+    && php bin/console doctrine:migrations:migrate --no-interaction --env=prod --no-debug || true \
     && php bin/console cache:clear --env=prod --no-debug || true \
     && php bin/console cache:warmup --env=prod --no-debug || true
 
