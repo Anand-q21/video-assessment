@@ -41,6 +41,8 @@ RUN mkdir -p var/cache var/log public/uploads config/serialization \
 ENV APP_ENV=prod
 ENV APP_DEBUG=0
 # DATABASE_URL will be provided by Railway environment variables
+ENV TRUSTED_PROXIES=127.0.0.1,REMOTE_ADDR
+ENV TRUSTED_HOSTS=^.*$
 
 # Generate JWT keys if they don't exist
 RUN mkdir -p config/jwt \
