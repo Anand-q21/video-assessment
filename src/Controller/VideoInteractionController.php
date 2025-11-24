@@ -13,6 +13,7 @@ use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Security\Http\Attribute\CurrentUser;
+use OpenApi\Attributes as OA;
 
 #[Route('/api/videos')]
 class VideoInteractionController extends AbstractController
@@ -25,6 +26,12 @@ class VideoInteractionController extends AbstractController
     ) {}
 
     #[Route('/{id}/like', name: 'like_video', methods: ['POST'])]
+    #[OA\Post(
+        path: '/api/videos/{id}/like',
+        summary: 'Like a video',
+        tags: ['Video Interactions'],
+        security: [['JWT' => []]]
+    )]
     public function likeVideo(int $id, #[CurrentUser] User $user): JsonResponse
     {
         $video = $this->videoRepository->find($id);
@@ -55,6 +62,12 @@ class VideoInteractionController extends AbstractController
     }
 
     #[Route('/{id}/like', name: 'unlike_video', methods: ['DELETE'])]
+    #[OA\Delete(
+        path: '/api/videos/{id}/like',
+        summary: 'Unlike a video',
+        tags: ['Video Interactions'],
+        security: [['JWT' => []]]
+    )]
     public function unlikeVideo(int $id, #[CurrentUser] User $user): JsonResponse
     {
         $video = $this->videoRepository->find($id);

@@ -15,6 +15,7 @@ use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Security\Http\Attribute\CurrentUser;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 use App\Entity\User;
+use OpenApi\Attributes as OA;
 
 #[Route('/api/videos')]
 class VideoController extends AbstractController
@@ -29,6 +30,12 @@ class VideoController extends AbstractController
     ) {}
 
     #[Route('/upload', name: 'upload_video', methods: ['POST'])]
+    #[OA\Post(
+        path: '/api/videos/upload',
+        summary: 'Upload a video',
+        tags: ['Videos'],
+        security: [['JWT' => []]]
+    )]
     public function uploadVideo(Request $request, #[CurrentUser] User $user): JsonResponse
     {
         $uploadedFile = $request->files->get('video');
@@ -130,6 +137,12 @@ class VideoController extends AbstractController
     }
 
     #[Route('/{id}', name: 'update_video', methods: ['PUT'])]
+    #[OA\Put(
+        path: '/api/videos/{id}',
+        summary: 'Update video',
+        tags: ['Videos'],
+        security: [['JWT' => []]]
+    )]
     public function updateVideo(int $id, Request $request, #[CurrentUser] User $user): JsonResponse
     {
         $video = $this->videoRepository->find($id);
@@ -171,6 +184,12 @@ class VideoController extends AbstractController
     }
 
     #[Route('/{id}', name: 'delete_video', methods: ['DELETE'])]
+    #[OA\Delete(
+        path: '/api/videos/{id}',
+        summary: 'Delete video',
+        tags: ['Videos'],
+        security: [['JWT' => []]]
+    )]
     public function deleteVideo(int $id, #[CurrentUser] User $user): JsonResponse
     {
         $video = $this->videoRepository->find($id);

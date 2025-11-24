@@ -26,12 +26,19 @@ security:
         api:
             pattern: ^/api
             stateless: true
-            jwt:
-                provider: app_user_provider
+            jwt: ~
 
     # 4. Access Control (Permissions)
     access_control:
         - { path: ^/api/(login|refresh|register), roles: PUBLIC_ACCESS }
+        - { path: ^/api/videos$, roles: PUBLIC_ACCESS, methods: [GET] }
+        - { path: ^/api/videos/search, roles: PUBLIC_ACCESS, methods: [GET] }
+        - { path: ^/api/videos/trending, roles: PUBLIC_ACCESS, methods: [GET] }
+        - { path: ^/api/videos/\d+$, roles: PUBLIC_ACCESS, methods: [GET] }
+        - { path: ^/api/videos/user/\d+, roles: PUBLIC_ACCESS, methods: [GET] }
+        - { path: ^/api/profile/\d+$, roles: PUBLIC_ACCESS, methods: [GET] }
+        - { path: ^/api/profile/search, roles: PUBLIC_ACCESS, methods: [GET] }
+        - { path: ^/api/feed/(vertical|trending|chronological|discover), roles: PUBLIC_ACCESS, methods: [GET] }
         - { path: ^/users/register, roles: PUBLIC_ACCESS }
         - { path: ^/test, roles: PUBLIC_ACCESS }
         - { path: ^/simple, roles: PUBLIC_ACCESS }

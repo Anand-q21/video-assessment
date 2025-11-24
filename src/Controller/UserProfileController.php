@@ -15,6 +15,7 @@ use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Security\Http\Attribute\CurrentUser;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
+use OpenApi\Attributes as OA;
 
 #[Route('/api/profile')]
 class UserProfileController extends AbstractController
@@ -58,6 +59,12 @@ class UserProfileController extends AbstractController
     }
 
     #[Route('', name: 'update_profile', methods: ['PUT'])]
+    #[OA\Put(
+        path: '/api/profile',
+        summary: 'Update user profile',
+        tags: ['User Profile'],
+        security: [['JWT' => []]]
+    )]
     public function updateProfile(Request $request, #[CurrentUser] User $user): JsonResponse
     {
         $data = json_decode($request->getContent(), true);
@@ -98,6 +105,12 @@ class UserProfileController extends AbstractController
     }
 
     #[Route('/{id}/follow', name: 'follow_user', methods: ['POST'])]
+    #[OA\Post(
+        path: '/api/profile/{id}/follow',
+        summary: 'Follow user',
+        tags: ['User Profile'],
+        security: [['JWT' => []]]
+    )]
     public function followUser(int $id, #[CurrentUser] User $currentUser): JsonResponse
     {
         $userToFollow = $this->userRepository->find($id);
@@ -128,6 +141,12 @@ class UserProfileController extends AbstractController
     }
 
     #[Route('/{id}/unfollow', name: 'unfollow_user', methods: ['DELETE'])]
+    #[OA\Delete(
+        path: '/api/profile/{id}/unfollow',
+        summary: 'Unfollow user',
+        tags: ['User Profile'],
+        security: [['JWT' => []]]
+    )]
     public function unfollowUser(int $id, #[CurrentUser] User $currentUser): JsonResponse
     {
         $userToUnfollow = $this->userRepository->find($id);

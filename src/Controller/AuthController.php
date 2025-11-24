@@ -13,6 +13,7 @@ use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Security\Http\Attribute\CurrentUser;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
+use OpenApi\Attributes as OA;
 
 #[Route('/api')]
 class AuthController extends AbstractController
@@ -73,6 +74,12 @@ class AuthController extends AbstractController
     }
 
     #[Route('/logout', name: 'api_logout', methods: ['POST'])]
+    #[OA\Post(
+        path: '/api/logout',
+        summary: 'User logout',
+        tags: ['Authentication'],
+        security: [['JWT' => []]]
+    )]
     public function logout(Request $request, #[CurrentUser] User $user): JsonResponse
     {
         $data = json_decode($request->getContent(), true);
@@ -85,6 +92,12 @@ class AuthController extends AbstractController
     }
 
     #[Route('/logout-all', name: 'api_logout_all', methods: ['POST'])]
+    #[OA\Post(
+        path: '/api/logout-all',
+        summary: 'Logout from all devices',
+        tags: ['Authentication'],
+        security: [['JWT' => []]]
+    )]
     public function logoutAll(#[CurrentUser] User $user): JsonResponse
     {
         $this->jwtService->revokeAllUserTokens($user);
@@ -92,6 +105,12 @@ class AuthController extends AbstractController
     }
 
     #[Route('/me', name: 'api_me', methods: ['GET'])]
+    #[OA\Get(
+        path: '/api/me',
+        summary: 'Get current user profile',
+        tags: ['Authentication'],
+        security: [['JWT' => []]]
+    )]
     public function me(#[CurrentUser] User $user): JsonResponse
     {
         $userData = [

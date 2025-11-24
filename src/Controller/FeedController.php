@@ -11,6 +11,7 @@ use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Security\Http\Attribute\CurrentUser;
+use OpenApi\Attributes as OA;
 
 #[Route('/api/feed')]
 class FeedController extends AbstractController
@@ -38,6 +39,12 @@ class FeedController extends AbstractController
     }
 
     #[Route('/home', name: 'home_feed', methods: ['GET'])]
+    #[OA\Get(
+        path: '/api/feed/home',
+        summary: 'Get home feed',
+        tags: ['Feed'],
+        security: [['JWT' => []]]
+    )]
     public function getHomeFeed(Request $request, #[CurrentUser] User $user): JsonResponse
     {
         $cursor = $request->query->get('cursor');
