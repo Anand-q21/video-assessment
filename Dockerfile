@@ -40,7 +40,7 @@ RUN mkdir -p var/cache var/log public/uploads \
 # Set production environment
 ENV APP_ENV=prod
 ENV APP_DEBUG=0
-ENV DATABASE_URL="sqlite:///%kernel.project_dir%/var/data.db"
+# DATABASE_URL will be provided by Railway environment variables
 
 # Generate JWT keys if they don't exist
 RUN mkdir -p config/jwt \
