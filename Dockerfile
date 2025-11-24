@@ -26,7 +26,8 @@ WORKDIR /var/www
 COPY composer.json composer.lock ./
 
 # Install dependencies without dev packages
-RUN composer install --no-dev --optimize-autoloader --no-scripts --no-interaction
+RUN composer install --no-dev --optimize-autoloader --no-scripts --no-interaction --ignore-platform-req=ext-* || \
+    composer install --no-dev --optimize-autoloader --no-scripts --no-interaction -vvv
 
 # Copy project files
 COPY . .
