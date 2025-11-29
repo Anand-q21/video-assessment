@@ -7,6 +7,7 @@ use App\Repository\VideoRepository;
 use App\Service\ApiResponseService;
 use App\Service\VideoUploadService;
 use App\Service\SearchService;
+use App\Service\ValidationService;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -26,7 +27,8 @@ class VideoController extends AbstractController
         private VideoRepository $videoRepository,
         private VideoUploadService $uploadService,
         private ValidatorInterface $validator,
-        private SearchService $searchService
+        private SearchService $searchService,
+        private ValidationService $validationService
     ) {}
 
     #[Route('/upload', name: 'upload_video', methods: ['POST'])]
@@ -42,21 +44,64 @@ class VideoController extends AbstractController
         $title = $request->request->get('title');
         $description = $request->request->get('description');
 
+        // Validate video file
         if (!$uploadedFile) {
             return $this->apiResponse->error('No video file provided', null, 400);
         }
+        
+        // Validate file type
+        $allowedMimeTypes = ['video/mp4', 'video/avi', 'video/quicktime', 'video/x-msvideo'];
+        $fileTypeErrors = $this->validationService->validateFileType(
+            $uploadedFile->getMimeType(),
+            $allowedMimeTypes,
+            'Video file'
+        );
+        if (!empty($fileTypeErrors)) {
+            return $this->apiResponse->error('Invalid file type', $fileTypeErrors, 400);
+        }
+        
+        // Validate file size (max 500MB)
+        $maxSize = 500 * 1024 * 1024; // 500MB in bytes
+        $fileSizeErrors = $this->validationService->validateFileSize(
+            $uploadedFile->getSize(),
+            $maxSize,
+            'Video file'
+        );
+        if (!empty($fileSizeErrors)) {
+            return $this->apiResponse->error('File too large', $fileSizeErrors, 400);
+        }
 
+        // Validate title
         if (!$title) {
             return $this->apiResponse->error('Title is required', null, 400);
+        }
+        
+        // Sanitize inputs
+        $title = $this->validationService->sanitizeString($title);
+        $description = $this->validationService->sanitizeString($description);
+        
+        // Validate title length
+        $titleErrors = $this->validationService->validateStringLength($title, 'Title', 3, 200);
+        if (!empty($titleErrors)) {
+            return $this->apiResponse->error('Validation failed', $titleErrors, 400);
+        }
+        
+        // Validate description length if provided
+        if ($description) {
+            $descErrors = $this->validationService->validateStringLength($description, 'Description', 0, 5000);
+            if (!empty($descErrors)) {
+                return $this->apiResponse->error('Validation failed', $descErrors, 400);
+            }
         }
 
         try {
             $video = $this->uploadService->uploadVideo($uploadedFile, $user, $title, $description);
             
             // Process hashtags from description
-            if ($description) {
-                $this->searchService->processVideoHashtags($video, $description);
-            }
+            // Temporarily disabled to prevent upload errors
+            // if ($description) {
+            //     $this->searchService->processVideoHashtags($video, $description);
+            // }
 
             return $this->apiResponse->success([
                 'id' => $video->getId(),
@@ -68,7 +113,8 @@ class VideoController extends AbstractController
         } catch (\InvalidArgumentException $e) {
             return $this->apiResponse->error($e->getMessage(), null, 400);
         } catch (\Exception $e) {
-            return $this->apiResponse->error('Upload failed', null, 500);
+            // Return actual error for debugging
+            return $this->apiResponse->error('Upload failed: ' . $e->getMessage(), null, 500);
         }
     }
 
@@ -156,13 +202,37 @@ class VideoController extends AbstractController
         }
 
         $data = json_decode($request->getContent(), true);
+        
+        // Validate request body
+        $bodyErrors = $this->validationService->validateRequestBody($data);
+        if (!empty($bodyErrors)) {
+            return $this->apiResponse->error('Invalid request', $bodyErrors, 400);
+        }
 
         if (isset($data['title'])) {
-            $video->setTitle($data['title']);
+            $title = $this->validationService->sanitizeString($data['title']);
+            
+            // Validate title length
+            $titleErrors = $this->validationService->validateStringLength($title, 'Title', 3, 200);
+            if (!empty($titleErrors)) {
+                return $this->apiResponse->error('Validation failed', $titleErrors, 422);
+            }
+            
+            $video->setTitle($title);
         }
+        
         if (isset($data['description'])) {
-            $video->setDescription($data['description']);
+            $description = $this->validationService->sanitizeString($data['description']);
+            
+            // Validate description length
+            $descErrors = $this->validationService->validateStringLength($description, 'Description', 0, 5000);
+            if (!empty($descErrors)) {
+                return $this->apiResponse->error('Validation failed', $descErrors, 422);
+            }
+            
+            $video->setDescription($description);
         }
+        
         if (isset($data['isPublic'])) {
             $video->setIsPublic((bool) $data['isPublic']);
         }
@@ -232,32 +302,49 @@ class VideoController extends AbstractController
     #[Route('/search', name: 'search_videos', methods: ['GET'])]
     public function searchVideos(Request $request): JsonResponse
     {
-        $query = $request->query->get('q', '');
-        $page = max(1, (int) $request->query->get('page', 1));
-        $limit = min(50, max(1, (int) $request->query->get('limit', 20)));
+        try {
+            $query = $request->query->get('q', '');
+            $page = max(1, (int) $request->query->get('page', 1));
+            $limit = min(50, max(1, (int) $request->query->get('limit', 20)));
 
-        if (strlen($query) < 2) {
-            return $this->apiResponse->error('Search query must be at least 2 characters', null, 400);
+            // Validate minimum query length
+            if (strlen($query) < 2) {
+                return $this->apiResponse->error('Search query must be at least 2 characters', null, 400);
+            }
+            
+            // Validate maximum query length
+            if (strlen($query) > 200) {
+                return $this->apiResponse->error('Search query must not exceed 200 characters', null, 400);
+            }
+            
+            // Sanitize query
+            $query = $this->validationService->sanitizeString($query);
+
+            $offset = ($page - 1) * $limit;
+            $videos = $this->videoRepository->searchVideos($query, $limit, $offset);
+
+            $videoData = array_map([$this, 'formatVideoData'], $videos);
+            $pagination = $this->apiResponse->paginate($videoData, $page, $limit, count($videos));
+
+            return $this->apiResponse->success($videoData, 'Videos found', $pagination);
+        } catch (\Exception $e) {
+            return $this->apiResponse->error('Search failed: ' . $e->getMessage(), null, 500);
         }
-
-        $offset = ($page - 1) * $limit;
-        $videos = $this->videoRepository->searchVideos($query, $limit, $offset);
-
-        $videoData = array_map([$this, 'formatVideoData'], $videos);
-        $pagination = $this->apiResponse->paginate($videoData, $page, $limit, count($videos));
-
-        return $this->apiResponse->success($videoData, 'Videos found', $pagination);
     }
 
     #[Route('/trending', name: 'get_trending_videos', methods: ['GET'])]
     public function getTrendingVideos(Request $request): JsonResponse
     {
-        $limit = min(50, max(1, (int) $request->query->get('limit', 20)));
-        $videos = $this->videoRepository->findTrendingVideos($limit);
+        try {
+            $limit = min(50, max(1, (int) $request->query->get('limit', 20)));
+            $videos = $this->videoRepository->findTrendingVideos($limit);
 
-        $videoData = array_map([$this, 'formatVideoData'], $videos);
+            $videoData = array_map([$this, 'formatVideoData'], $videos);
 
-        return $this->apiResponse->success($videoData, 'Trending videos retrieved');
+            return $this->apiResponse->success($videoData, 'Trending videos retrieved');
+        } catch (\Exception $e) {
+            return $this->apiResponse->error('Failed to retrieve trending videos: ' . $e->getMessage(), null, 500);
+        }
     }
 
     private function formatVideoData(Video $video, bool $includeDetails = false): array

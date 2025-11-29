@@ -48,7 +48,7 @@ class Video
     private ?string $thumbnailPath = null;
 
     #[ORM\Column]
-    private ?int $duration = null; // in seconds
+    private ?int $duration = 0; // in seconds
 
     #[ORM\Column]
     private ?int $fileSize = null; // in bytes

@@ -5,6 +5,7 @@ namespace App\Controller;
 use App\Entity\User;
 use App\Service\JWTService;
 use App\Service\ApiResponseService;
+use App\Service\ValidationService;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -23,7 +24,8 @@ class AuthController extends AbstractController
         private EntityManagerInterface $entityManager,
         private UserPasswordHasherInterface $passwordHasher,
         private ApiResponseService $apiResponse,
-        private ValidatorInterface $validator
+        private ValidatorInterface $validator,
+        private ValidationService $validationService
     ) {}
 
     #[Route('/login', name: 'api_login', methods: ['POST'])]
@@ -31,12 +33,29 @@ class AuthController extends AbstractController
     {
         $data = json_decode($request->getContent(), true);
         
-        if (!isset($data['email']) || !isset($data['password'])) {
-            return $this->apiResponse->error('Email and password required', null, 400);
+        // Validate request body
+        $bodyErrors = $this->validationService->validateRequestBody($data);
+        if (!empty($bodyErrors)) {
+            return $this->apiResponse->error('Invalid request', $bodyErrors, 400);
+        }
+        
+        // Validate required fields
+        $requiredErrors = $this->validationService->validateRequiredFields($data, ['email', 'password']);
+        if (!empty($requiredErrors)) {
+            return $this->apiResponse->error('Missing required fields', $requiredErrors, 400);
+        }
+        
+        // Validate email format
+        $emailErrors = $this->validationService->validateEmail($data['email']);
+        if (!empty($emailErrors)) {
+            return $this->apiResponse->error('Validation failed', $emailErrors, 400);
         }
 
+        // Sanitize input
+        $email = $this->validationService->sanitizeString($data['email']);
+        
         $user = $this->entityManager->getRepository(User::class)->findOneBy([
-            'email' => $data['email'],
+            'email' => $email,
             'isActive' => true
         ]);
         
@@ -60,8 +79,21 @@ class AuthController extends AbstractController
     {
         $data = json_decode($request->getContent(), true);
         
-        if (!isset($data['refresh_token'])) {
-            return $this->apiResponse->error('Refresh token required', null, 400);
+        // Validate request body
+        $bodyErrors = $this->validationService->validateRequestBody($data);
+        if (!empty($bodyErrors)) {
+            return $this->apiResponse->error('Invalid request', $bodyErrors, 400);
+        }
+        
+        // Validate required fields
+        $requiredErrors = $this->validationService->validateRequiredFields($data, ['refresh_token']);
+        if (!empty($requiredErrors)) {
+            return $this->apiResponse->error('Missing required fields', $requiredErrors, 400);
+        }
+        
+        // Validate token format (basic check)
+        if (empty(trim($data['refresh_token'])) || strlen($data['refresh_token']) < 10) {
+            return $this->apiResponse->error('Invalid refresh token format', null, 400);
         }
 
         $tokens = $this->jwtService->refreshAccessToken($data['refresh_token']);
@@ -132,15 +164,68 @@ class AuthController extends AbstractController
     {
         $data = json_decode($request->getContent(), true);
         
-        $user = new User();
-        $user->setEmail($data['email'] ?? '');
-        $user->setUsername($data['username'] ?? '');
-        $user->setFirstName($data['firstName'] ?? '');
-        
-        if (isset($data['password'])) {
-            $user->setPassword($this->passwordHasher->hashPassword($user, $data['password']));
+        // Validate request body
+        $bodyErrors = $this->validationService->validateRequestBody($data);
+        if (!empty($bodyErrors)) {
+            return $this->apiResponse->error('Invalid request', $bodyErrors, 400);
         }
         
+        // Validate required fields
+        $requiredErrors = $this->validationService->validateRequiredFields($data, ['email', 'username', 'password', 'firstName']);
+        if (!empty($requiredErrors)) {
+            return $this->apiResponse->error('Missing required fields', $requiredErrors, 422);
+        }
+        
+        // Sanitize inputs
+        $email = $this->validationService->sanitizeString($data['email']);
+        $username = $this->validationService->sanitizeString($data['username']);
+        $firstName = $this->validationService->sanitizeString($data['firstName']);
+        $password = $data['password']; // Don't sanitize password
+        
+        // Validate email format
+        $emailErrors = $this->validationService->validateEmail($email);
+        if (!empty($emailErrors)) {
+            return $this->apiResponse->error('Validation failed', $emailErrors, 422);
+        }
+        
+        // Validate username format
+        $usernameErrors = $this->validationService->validateUsername($username);
+        if (!empty($usernameErrors)) {
+            return $this->apiResponse->error('Validation failed', $usernameErrors, 422);
+        }
+        
+        // Validate password strength
+        $passwordErrors = $this->validationService->validatePassword($password);
+        if (!empty($passwordErrors)) {
+            return $this->apiResponse->error('Validation failed', $passwordErrors, 422);
+        }
+        
+        // Validate firstName length
+        $firstNameErrors = $this->validationService->validateStringLength($firstName, 'First name', 1, 255);
+        if (!empty($firstNameErrors)) {
+            return $this->apiResponse->error('Validation failed', $firstNameErrors, 422);
+        }
+        
+        // Check for duplicate email
+        $existingUserByEmail = $this->entityManager->getRepository(User::class)->findOneBy(['email' => $email]);
+        if ($existingUserByEmail) {
+            return $this->apiResponse->error('Validation failed', ['Email already exists'], 422);
+        }
+        
+        // Check for duplicate username
+        $existingUserByUsername = $this->entityManager->getRepository(User::class)->findOneBy(['username' => $username]);
+        if ($existingUserByUsername) {
+            return $this->apiResponse->error('Validation failed', ['Username already taken'], 422);
+        }
+        
+        // Create user
+        $user = new User();
+        $user->setEmail($email);
+        $user->setUsername($username);
+        $user->setFirstName($firstName);
+        $user->setPassword($this->passwordHasher->hashPassword($user, $password));
+        
+        // Final validation with Symfony validator
         $errors = $this->validator->validate($user);
         if (count($errors) > 0) {
             $errorMessages = [];

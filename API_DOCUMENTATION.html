@@ -1,0 +1,1060 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Video Platform API Documentation</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background: #fff;
+            padding: 40px;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        h1 {
+            color: #2c3e50;
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            padding-bottom: 15px;
+            border-bottom: 4px solid #3498db;
+        }
+
+        h2 {
+            color: #34495e;
+            font-size: 2em;
+            margin-top: 40px;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #95a5a6;
+            page-break-after: avoid;
+        }
+
+        h3 {
+            color: #2980b9;
+            font-size: 1.4em;
+            margin-top: 30px;
+            margin-bottom: 15px;
+            page-break-after: avoid;
+        }
+
+        h4 {
+            color: #7f8c8d;
+            font-size: 1.1em;
+            margin-top: 20px;
+            margin-bottom: 10px;
+        }
+
+        p {
+            margin-bottom: 15px;
+        }
+
+        .header-info {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px;
+            border-radius: 10px;
+            margin-bottom: 40px;
+        }
+
+        .header-info h1 {
+            color: white;
+            border-bottom: 3px solid rgba(255, 255, 255, 0.3);
+        }
+
+        .header-info p {
+            font-size: 1.1em;
+            margin-top: 15px;
+        }
+
+        .method {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 4px;
+            font-weight: bold;
+            font-size: 0.9em;
+            margin-right: 10px;
+        }
+
+        .method.get {
+            background: #4caf50;
+            color: white;
+        }
+
+        .method.post {
+            background: #2196f3;
+            color: white;
+        }
+
+        .method.put {
+            background: #ff9800;
+            color: white;
+        }
+
+        .method.delete {
+            background: #f44336;
+            color: white;
+        }
+
+        .endpoint {
+            background: #f8f9fa;
+            border-left: 4px solid #3498db;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 4px;
+            page-break-inside: avoid;
+        }
+
+        .endpoint-header {
+            font-size: 1.2em;
+            margin-bottom: 15px;
+        }
+
+        .auth-required {
+            display: inline-block;
+            background: #ff6b6b;
+            color: white;
+            padding: 3px 10px;
+            border-radius: 3px;
+            font-size: 0.85em;
+            margin-left: 10px;
+        }
+
+        code {
+            background: #f4f4f4;
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-family: 'Courier New', Consolas, monospace;
+            font-size: 0.9em;
+            color: #e74c3c;
+        }
+
+        pre {
+            background: #2c3e50;
+            color: #ecf0f1;
+            padding: 20px;
+            border-radius: 6px;
+            overflow-x: auto;
+            margin: 15px 0;
+            page-break-inside: avoid;
+        }
+
+        pre code {
+            background: transparent;
+            color: #ecf0f1;
+            padding: 0;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+            page-break-inside: avoid;
+        }
+
+        th,
+        td {
+            padding: 12px;
+            text-align: left;
+            border: 1px solid #ddd;
+        }
+
+        th {
+            background: #3498db;
+            color: white;
+            font-weight: 600;
+        }
+
+        tr:nth-child(even) {
+            background: #f8f9fa;
+        }
+
+        .toc {
+            background: #f8f9fa;
+            padding: 25px;
+            border-radius: 8px;
+            margin: 30px 0;
+        }
+
+        .toc h2 {
+            margin-top: 0;
+            border-bottom: none;
+        }
+
+        .toc ul {
+            list-style: none;
+            padding-left: 0;
+        }
+
+        .toc li {
+            padding: 8px 0;
+            border-bottom: 1px solid #e0e0e0;
+        }
+
+        .toc li:last-child {
+            border-bottom: none;
+        }
+
+        .toc a {
+            color: #2980b9;
+            text-decoration: none;
+            font-size: 1.1em;
+        }
+
+        .toc a:hover {
+            color: #3498db;
+            text-decoration: underline;
+        }
+
+        ul,
+        ol {
+            margin-left: 30px;
+            margin-bottom: 15px;
+        }
+
+        li {
+            margin-bottom: 8px;
+        }
+
+        hr {
+            border: none;
+            border-top: 2px solid #ecf0f1;
+            margin: 40px 0;
+        }
+
+        .note {
+            background: #fff3cd;
+            border-left: 4px solid #ffc107;
+            padding: 15px;
+            margin: 20px 0;
+            border-radius: 4px;
+        }
+
+        .success {
+            background: #d4edda;
+            border-left: 4px solid #28a745;
+            padding: 15px;
+            margin: 20px 0;
+            border-radius: 4px;
+        }
+
+        @media print {
+            body {
+                padding: 20px;
+            }
+
+            .header-info {
+                background: #667eea !important;
+                -webkit-print-color-adjust: exact;
+                print-color-adjust: exact;
+            }
+
+            pre {
+                background: #2c3e50 !important;
+                -webkit-print-color-adjust: exact;
+                print-color-adjust: exact;
+            }
+
+            .method,
+            .auth-required,
+            th {
+                -webkit-print-color-adjust: exact;
+                print-color-adjust: exact;
+            }
+
+            h2 {
+                page-break-before: always;
+            }
+
+            h2:first-of-type {
+                page-break-before: avoid;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="header-info">
+        <h1>🎥 Video Platform API Documentation</h1>
+        <p><strong>Base URL:</strong> https://video-assessment-22ek.onrender.com</p>
+        <p><strong>Version:</strong> 1.0 | <strong>Last Updated:</strong> November 26, 2025</p>
+    </div>
+
+    <div class="toc">
+        <h2>📑 Table of Contents</h2>
+        <ul>
+            <li><a href="#authentication">1. Authentication</a></li>
+            <li><a href="#videos">2. Videos</a></li>
+            <li><a href="#video-interactions">3. Video Interactions</a></li>
+            <li><a href="#feeds">4. Feeds</a></li>
+            <li><a href="#search">5. Search</a></li>
+            <li><a href="#user-profiles">6. User Profiles</a></li>
+            <li><a href="#user-social">7. User Social</a></li>
+            <li><a href="#response-format">8. Response Format</a></li>
+            <li><a href="#error-codes">9. Error Codes</a></li>
+        </ul>
+    </div>
+
+    <h2 id="authentication">1. Authentication</h2>
+
+    <div class="note">
+        <strong>🔐 Authentication Required:</strong> All authenticated endpoints require a JWT token in the
+        Authorization header:<br>
+        <code>Authorization: Bearer &lt;your_jwt_token&gt;</code>
+    </div>
+
+    <div class="endpoint">
+        <div class="endpoint-header">
+            <span class="method post">POST</span>
+            <code>/api/register</code>
+        </div>
+        <p><strong>Description:</strong> Create a new user account</p>
+
+        <h4>Request Body:</h4>
+        <pre><code>{
+  "email": "user@example.com",
+  "username": "username",
+  "password": "SecurePass123!",
+  "firstName": "John"
+}</code></pre>
+
+        <h4>Response (201):</h4>
+        <pre><code>{
+  "success": true,
+  "data": {
+    "id": 1,
+    "email": "user@example.com",
+    "username": "username"
+  },
+  "message": "User registered successfully"
+}</code></pre>
+    </div>
+
+    <div class="endpoint">
+        <div class="endpoint-header">
+            <span class="method post">POST</span>
+            <code>/api/login</code>
+        </div>
+        <p><strong>Description:</strong> Authenticate and receive JWT tokens</p>
+
+        <h4>Request Body:</h4>
+        <pre><code>{
+  "email": "user@example.com",
+  "password": "SecurePass123!"
+}</code></pre>
+
+        <h4>Response (200):</h4>
+        <pre><code>{
+  "success": true,
+  "data": {
+    "token": "eyJ0eXAiOiJKV1QiLCJhbGc...",
+    "refresh_token": "eyJ0eXAiOiJKV1QiLCJhbGc...",
+    "user": {
+      "id": 1,
+      "email": "user@example.com",
+      "username": "username",
+      "roles": ["ROLE_USER"]
+    }
+  },
+  "message": "Login successful"
+}</code></pre>
+    </div>
+
+    <div class="endpoint">
+        <div class="endpoint-header">
+            <span class="method post">POST</span>
+            <code>/api/refresh</code>
+        </div>
+        <p><strong>Description:</strong> Refresh an expired access token</p>
+
+        <h4>Request Body:</h4>
+        <pre><code>{
+  "refresh_token": "eyJ0eXAiOiJKV1QiLCJhbGc..."
+}</code></pre>
+
+        <h4>Response (200):</h4>
+        <pre><code>{
+  "success": true,
+  "data": {
+    "token": "eyJ0eXAiOiJKV1QiLCJhbGc...",
+    "refresh_token": "eyJ0eXAiOiJKV1QiLCJhbGc..."
+  },
+  "message": "Token refreshed successfully"
+}</code></pre>
+    </div>
+
+    <div class="endpoint">
+        <div class="endpoint-header">
+            <span class="method get">GET</span>
+            <code>/api/me</code>
+            <span class="auth-required">🔒 Auth Required</span>
+        </div>
+        <p><strong>Description:</strong> Get the authenticated user's profile</p>
+
+        <h4>Response (200):</h4>
+        <pre><code>{
+  "success": true,
+  "data": {
+    "id": 1,
+    "email": "user@example.com",
+    "username": "username",
+    "firstName": "John",
+    "bio": "Content creator",
+    "profilePicture": "/uploads/profiles/user1.jpg",
+    "roles": ["ROLE_USER"],
+    "createdAt": "2025-11-26 10:00:00"
+  },
+  "message": "User profile retrieved"
+}</code></pre>
+    </div>
+
+    <div class="endpoint">
+        <div class="endpoint-header">
+            <span class="method post">POST</span>
+            <code>/api/logout</code>
+            <span class="auth-required">🔒 Auth Required</span>
+        </div>
+        <p><strong>Description:</strong> Logout and invalidate the refresh token</p>
+
+        <h4>Request Body:</h4>
+        <pre><code>{
+  "refresh_token": "eyJ0eXAiOiJKV1QiLCJhbGc..."
+}</code></pre>
+    </div>
+
+    <div class="endpoint">
+        <div class="endpoint-header">
+            <span class="method post">POST</span>
+            <code>/api/logout-all</code>
+            <span class="auth-required">🔒 Auth Required</span>
+        </div>
+        <p><strong>Description:</strong> Logout from all devices by revoking all refresh tokens</p>
+    </div>
+
+    <hr>
+
+    <h2 id="videos">2. Videos</h2>
+
+    <div class="endpoint">
+        <div class="endpoint-header">
+            <span class="method get">GET</span>
+            <code>/api/videos</code>
+        </div>
+        <p><strong>Description:</strong> Get a paginated list of all videos</p>
+
+        <h4>Query Parameters:</h4>
+        <ul>
+            <li><code>page</code> (integer, default: 1) - Page number</li>
+            <li><code>limit</code> (integer, default: 20, max: 50) - Items per page</li>
+        </ul>
+
+        <h4>Response (200):</h4>
+        <pre><code>{
+  "success": true,
+  "data": [
+    {
+      "id": 1,
+      "title": "Amazing Video",
+      "description": "This is an amazing video",
+      "thumbnailPath": "/uploads/thumbnails/video1.jpg",
+      "duration": 120,
+      "viewsCount": 1500,
+      "likesCount": 250,
+      "createdAt": "2025-11-26 10:00:00",
+      "user": {
+        "id": 1,
+        "username": "creator",
+        "firstName": "John",
+        "profilePicture": "/uploads/profiles/user1.jpg"
+      }
+    }
+  ],
+  "message": "Videos retrieved",
+  "pagination": {
+    "current_page": 1,
+    "per_page": 20,
+    "total": 100,
+    "total_pages": 5,
+    "has_next": true,
+    "has_prev": false
+  }
+}</code></pre>
+    </div>
+
+    <div class="endpoint">
+        <div class="endpoint-header">
+            <span class="method get">GET</span>
+            <code>/api/videos/{id}</code>
+        </div>
+        <p><strong>Description:</strong> Get detailed information about a specific video</p>
+
+        <h4>Response (200):</h4>
+        <pre><code>{
+  "success": true,
+  "data": {
+    "id": 1,
+    "title": "Amazing Video",
+    "description": "This is an amazing video",
+    "filePath": "/uploads/videos/video1.mp4",
+    "thumbnailPath": "/uploads/thumbnails/video1.jpg",
+    "duration": 120,
+    "viewsCount": 1500,
+    "likesCount": 250,
+    "commentsCount": 45,
+    "hashtags": ["#amazing", "#video"],
+    "createdAt": "2025-11-26 10:00:00",
+    "user": {...}
+  },
+  "message": "Video retrieved"
+}</code></pre>
+    </div>
+
+    <div class="endpoint">
+        <div class="endpoint-header">
+            <span class="method post">POST</span>
+            <code>/api/videos/upload</code>
+            <span class="auth-required">🔒 Auth Required</span>
+        </div>
+        <p><strong>Description:</strong> Upload a new video</p>
+
+        <h4>Request (multipart/form-data):</h4>
+        <ul>
+            <li><code>title</code> (string, required) - Video title</li>
+            <li><code>description</code> (string, optional) - Video description</li>
+            <li><code>file</code> (file, required) - Video file (MP4, AVI, MOV)</li>
+            <li><code>hashtags</code> (string, optional) - Comma-separated hashtags</li>
+        </ul>
+
+        <h4>Response (201):</h4>
+        <pre><code>{
+  "success": true,
+  "data": {
+    "id": 1,
+    "title": "My New Video",
+    "filePath": "/uploads/videos/video1.mp4",
+    "thumbnailPath": "/uploads/thumbnails/video1.jpg"
+  },
+  "message": "Video uploaded successfully"
+}</code></pre>
+    </div>
+
+    <div class="endpoint">
+        <div class="endpoint-header">
+            <span class="method put">PUT</span>
+            <code>/api/videos/{id}</code>
+            <span class="auth-required">🔒 Auth Required</span>
+        </div>
+        <p><strong>Description:</strong> Update video details (only by the video owner)</p>
+
+        <h4>Request Body:</h4>
+        <pre><code>{
+  "title": "Updated Title",
+  "description": "Updated description",
+  "hashtags": "#updated,#video"
+}</code></pre>
+    </div>
+
+    <div class="endpoint">
+        <div class="endpoint-header">
+            <span class="method delete">DELETE</span>
+            <code>/api/videos/{id}</code>
+            <span class="auth-required">🔒 Auth Required</span>
+        </div>
+        <p><strong>Description:</strong> Delete a video (only by the video owner)</p>
+    </div>
+
+    <div class="endpoint">
+        <div class="endpoint-header">
+            <span class="method get">GET</span>
+            <code>/api/videos/user/{userId}</code>
+        </div>
+        <p><strong>Description:</strong> Get all videos uploaded by a specific user</p>
+
+        <h4>Query Parameters:</h4>
+        <ul>
+            <li><code>page</code> (integer, default: 1)</li>
+            <li><code>limit</code> (integer, default: 20, max: 50)</li>
+        </ul>
+    </div>
+
+    <div class="endpoint">
+        <div class="endpoint-header">
+            <span class="method get">GET</span>
+            <code>/api/videos/search</code>
+        </div>
+        <p><strong>Description:</strong> Search for videos by title or description</p>
+
+        <h4>Query Parameters:</h4>
+        <ul>
+            <li><code>q</code> (string, required) - Search query</li>
+            <li><code>page</code> (integer, default: 1)</li>
+            <li><code>limit</code> (integer, default: 20)</li>
+        </ul>
+    </div>
+
+    <div class="endpoint">
+        <div class="endpoint-header">
+            <span class="method get">GET</span>
+            <code>/api/videos/trending</code>
+        </div>
+        <p><strong>Description:</strong> Get trending videos based on views and likes</p>
+    </div>
+
+    <hr>
+
+    <h2 id="video-interactions">3. Video Interactions</h2>
+
+    <div class="endpoint">
+        <div class="endpoint-header">
+            <span class="method post">POST</span>
+            <code>/api/videos/{id}/like</code>
+            <span class="auth-required">🔒 Auth Required</span>
+        </div>
+        <p><strong>Description:</strong> Like a video</p>
+
+        <h4>Response (200):</h4>
+        <pre><code>{
+  "success": true,
+  "data": {
+    "likesCount": 251,
+    "isLiked": true
+  },
+  "message": "Video liked successfully"
+}</code></pre>
+    </div>
+
+    <div class="endpoint">
+        <div class="endpoint-header">
+            <span class="method delete">DELETE</span>
+            <code>/api/videos/{id}/like</code>
+            <span class="auth-required">🔒 Auth Required</span>
+        </div>
+        <p><strong>Description:</strong> Remove a like from a video</p>
+
+        <h4>Response (200):</h4>
+        <pre><code>{
+  "success": true,
+  "data": {
+    "likesCount": 250,
+    "isLiked": false
+  },
+  "message": "Video unliked successfully"
+}</code></pre>
+    </div>
+
+    <div class="endpoint">
+        <div class="endpoint-header">
+            <span class="method post">POST</span>
+            <code>/api/videos/{id}/view</code>
+        </div>
+        <p><strong>Description:</strong> Increment the view count for a video</p>
+
+        <h4>Response (200):</h4>
+        <pre><code>{
+  "success": true,
+  "data": {
+    "viewsCount": 1501
+  },
+  "message": "View recorded"
+}</code></pre>
+    </div>
+
+    <hr>
+
+    <h2 id="feeds">4. Feeds</h2>
+
+    <div class="endpoint">
+        <div class="endpoint-header">
+            <span class="method get">GET</span>
+            <code>/api/feed/vertical</code>
+        </div>
+        <p><strong>Description:</strong> Get the main vertical scrolling feed (TikTok-style)</p>
+
+        <h4>Query Parameters:</h4>
+        <ul>
+            <li><code>cursor</code> (string, optional) - Pagination cursor</li>
+            <li><code>limit</code> (integer, default: 20, max: 50)</li>
+        </ul>
+
+        <h4>Response (200):</h4>
+        <pre><code>{
+  "success": true,
+  "data": {
+    "videos": [...],
+    "nextCursor": "eyJpZCI6MTB9",
+    "hasMore": true
+  },
+  "message": "Vertical feed retrieved"
+}</code></pre>
+    </div>
+
+    <div class="endpoint">
+        <div class="endpoint-header">
+            <span class="method get">GET</span>
+            <code>/api/feed/home</code>
+            <span class="auth-required">🔒 Auth Required</span>
+        </div>
+        <p><strong>Description:</strong> Get personalized home feed based on user preferences</p>
+    </div>
+
+    <div class="endpoint">
+        <div class="endpoint-header">
+            <span class="method get">GET</span>
+            <code>/api/feed/trending</code>
+        </div>
+        <p><strong>Description:</strong> Get trending videos feed</p>
+    </div>
+
+    <div class="endpoint">
+        <div class="endpoint-header">
+            <span class="method get">GET</span>
+            <code>/api/feed/chronological</code>
+        </div>
+        <p><strong>Description:</strong> Get videos in chronological order (newest first)</p>
+    </div>
+
+    <div class="endpoint">
+        <div class="endpoint-header">
+            <span class="method get">GET</span>
+            <code>/api/feed/creator/{userId}</code>
+        </div>
+        <p><strong>Description:</strong> Get all videos from a specific creator</p>
+
+        <h4>Response (200):</h4>
+        <pre><code>{
+  "success": true,
+  "data": {
+    "creator": {
+      "id": 1,
+      "username": "creator",
+      "firstName": "John",
+      "bio": "Content creator",
+      "profilePicture": "/uploads/profiles/user1.jpg"
+    },
+    "videos": [...],
+    "nextCursor": "eyJpZCI6MTB9",
+    "hasMore": true
+  },
+  "message": "Creator channel retrieved"
+}</code></pre>
+    </div>
+
+    <div class="endpoint">
+        <div class="endpoint-header">
+            <span class="method get">GET</span>
+            <code>/api/feed/discover</code>
+        </div>
+        <p><strong>Description:</strong> Discover new content based on categories</p>
+
+        <h4>Query Parameters:</h4>
+        <ul>
+            <li><code>category</code> (string, default: "all")</li>
+        </ul>
+    </div>
+
+
+
+    <hr>
+
+    <h2 id="search">5. Search</h2>
+
+
+
+    <div class="endpoint">
+        <div class="endpoint-header">
+            <span class="method get">GET</span>
+            <code>/api/search/hashtags/{hashtag}</code>
+        </div>
+        <p><strong>Description:</strong> Get all videos with a specific hashtag</p>
+
+        <h4>Response (200):</h4>
+        <pre><code>{
+  "success": true,
+  "data": {
+    "hashtag": "#amazing",
+    "videos": [...]
+  },
+  "message": "Hashtag videos retrieved",
+  "pagination": {...}
+}</code></pre>
+    </div>
+
+
+
+
+
+
+
+
+
+
+
+    <hr>
+
+    <h2 id="user-profiles">6. User Profiles</h2>
+
+    <div class="endpoint">
+        <div class="endpoint-header">
+            <span class="method get">GET</span>
+            <code>/api/profile/{id}</code>
+        </div>
+        <p><strong>Description:</strong> Get a user's public profile</p>
+
+        <h4>Response (200):</h4>
+        <pre><code>{
+  "success": true,
+  "data": {
+    "id": 1,
+    "username": "creator",
+    "firstName": "John",
+    "bio": "Content creator",
+    "profilePicture": "/uploads/profiles/user1.jpg",
+    "followersCount": 1500,
+    "followingCount": 250,
+    "videosCount": 45,
+    "isFollowing": false
+  },
+  "message": "User profile retrieved"
+}</code></pre>
+    </div>
+
+    <div class="endpoint">
+        <div class="endpoint-header">
+            <span class="method put">PUT</span>
+            <code>/api/profile</code>
+            <span class="auth-required">🔒 Auth Required</span>
+        </div>
+        <p><strong>Description:</strong> Update the authenticated user's profile</p>
+
+        <h4>Request Body:</h4>
+        <pre><code>{
+  "username": "newusername",
+  "firstName": "John",
+  "bio": "Updated bio",
+  "profilePicture": "/uploads/profiles/new.jpg"
+}</code></pre>
+    </div>
+
+    <div class="endpoint">
+        <div class="endpoint-header">
+            <span class="method post">POST</span>
+            <code>/api/profile/{id}/follow</code>
+            <span class="auth-required">🔒 Auth Required</span>
+        </div>
+        <p><strong>Description:</strong> Follow a user</p>
+
+        <h4>Response (200):</h4>
+        <pre><code>{
+  "success": true,
+  "data": {
+    "followersCount": 1501,
+    "isFollowing": true
+  },
+  "message": "User followed successfully"
+}</code></pre>
+    </div>
+
+    <div class="endpoint">
+        <div class="endpoint-header">
+            <span class="method delete">DELETE</span>
+            <code>/api/profile/{id}/unfollow</code>
+            <span class="auth-required">🔒 Auth Required</span>
+        </div>
+        <p><strong>Description:</strong> Unfollow a user</p>
+    </div>
+
+    <div class="endpoint">
+        <div class="endpoint-header">
+            <span class="method get">GET</span>
+            <code>/api/profile/{id}/followers</code>
+        </div>
+        <p><strong>Description:</strong> Get a user's followers list</p>
+
+        <h4>Query Parameters:</h4>
+        <ul>
+            <li><code>page</code> (integer, default: 1)</li>
+            <li><code>limit</code> (integer, default: 20, max: 50)</li>
+        </ul>
+    </div>
+
+    <div class="endpoint">
+        <div class="endpoint-header">
+            <span class="method get">GET</span>
+            <code>/api/profile/{id}/following</code>
+        </div>
+        <p><strong>Description:</strong> Get users that a user is following</p>
+    </div>
+
+    <div class="endpoint">
+        <div class="endpoint-header">
+            <span class="method get">GET</span>
+            <code>/api/profile/search</code>
+        </div>
+        <p><strong>Description:</strong> Search for users by username or name</p>
+
+        <h4>Query Parameters:</h4>
+        <ul>
+            <li><code>q</code> (string, required, min: 2 chars)</li>
+            <li><code>page</code> (integer, default: 1)</li>
+            <li><code>limit</code> (integer, default: 20, max: 50)</li>
+        </ul>
+    </div>
+
+    <hr>
+
+    <h2 id="user-social">7. User Social</h2>
+
+    <div class="endpoint">
+        <div class="endpoint-header">
+            <span class="method post">POST</span>
+            <code>/api/users/{userId}/follow</code>
+            <span class="auth-required">🔒 Auth Required</span>
+        </div>
+        <p><strong>Description:</strong> Follow a user (alternative endpoint)</p>
+    </div>
+
+    <div class="endpoint">
+        <div class="endpoint-header">
+            <span class="method delete">DELETE</span>
+            <code>/api/users/{userId}/follow</code>
+            <span class="auth-required">🔒 Auth Required</span>
+        </div>
+        <p><strong>Description:</strong> Unfollow a user (alternative endpoint)</p>
+    </div>
+
+    <div class="endpoint">
+        <div class="endpoint-header">
+            <span class="method get">GET</span>
+            <code>/api/users/{userId}/stats</code>
+        </div>
+        <p><strong>Description:</strong> Get detailed statistics for a user</p>
+
+        <h4>Response (200):</h4>
+        <pre><code>{
+  "success": true,
+  "data": {
+    "followersCount": 1500,
+    "followingCount": 250,
+    "videosCount": 45,
+    "totalViews": 50000,
+    "totalLikes": 12000
+  },
+  "message": "User statistics retrieved"
+}</code></pre>
+    </div>
+
+
+
+    <div class="endpoint">
+        <div class="endpoint-header">
+            <span class="method put">PUT</span>
+            <code>/api/users/profile</code>
+            <span class="auth-required">🔒 Auth Required</span>
+        </div>
+        <p><strong>Description:</strong> Update user profile (alternative endpoint)</p>
+    </div>
+
+    <hr>
+
+    <h2 id="response-format">8. Response Format</h2>
+
+    <p>All API responses follow this standard format:</p>
+
+    <h3>Success Response</h3>
+    <pre><code>{
+  "success": true,
+  "data": { ... },
+  "message": "Operation successful",
+  "pagination": { ... }  // Optional, for paginated endpoints
+}</code></pre>
+
+    <h3>Error Response</h3>
+    <pre><code>{
+  "success": false,
+  "data": null,
+  "message": "Error message",
+  "errors": [ ... ]  // Optional, for validation errors
+}</code></pre>
+
+    <h3>Pagination Object</h3>
+    <pre><code>{
+  "current_page": 1,
+  "per_page": 20,
+  "total": 100,
+  "total_pages": 5,
+  "has_next": true,
+  "has_prev": false
+}</code></pre>
+
+    <hr>
+
+    <h2 id="error-codes">9. Error Codes</h2>
+
+    <table>
+        <thead>
+            <tr>
+                <th>Status Code</th>
+                <th>Description</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td>200</td>
+                <td>OK - Request successful</td>
+            </tr>
+            <tr>
+                <td>201</td>
+                <td>Created - Resource created successfully</td>
+            </tr>
+            <tr>
+                <td>400</td>
+                <td>Bad Request - Invalid request parameters</td>
+            </tr>
+            <tr>
+                <td>401</td>
+                <td>Unauthorized - Missing or invalid authentication</td>
+            </tr>
+            <tr>
+                <td>403</td>
+                <td>Forbidden - Insufficient permissions</td>
+            </tr>
+            <tr>
+                <td>404</td>
+                <td>Not Found - Resource not found</td>
+            </tr>
+            <tr>
+                <td>405</td>
+                <td>Method Not Allowed - HTTP method not supported</td>
+            </tr>
+            <tr>
+                <td>422</td>
+                <td>Unprocessable Entity - Validation failed</td>
+            </tr>
+            <tr>
+                <td>500</td>
+                <td>Internal Server Error - Server error</td>
+            </tr>
+        </tbody>
+    </table>
+
+    <hr>
+    <hr>
+
+    <p style="text-align: center; color: #7f8c8d; margin-top: 40px;">
+        <strong>End of Documentation</strong><br>
+        Video Platform API v1.0 | November 26, 2025
+    </p>
+
+</body>
+
+</html>

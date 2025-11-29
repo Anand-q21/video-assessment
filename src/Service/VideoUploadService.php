@@ -138,9 +138,19 @@ class VideoUploadService
         $video->setThumbnailPath(self::THUMBNAIL_DIR . $thumbnailName);
 
         // In real implementation, use FFmpeg to generate thumbnail
-        // For now, create a placeholder
+        // For now, create a simple placeholder if source exists
+        $placeholderSource = $this->projectDir . '/public/placeholder-thumbnail.jpg';
         $placeholderPath = $thumbnailDir . $thumbnailName;
-        copy($this->projectDir . '/public/placeholder-thumbnail.jpg', $placeholderPath);
+        
+        if (file_exists($placeholderSource) && filesize($placeholderSource) > 100) {
+            copy($placeholderSource, $placeholderPath);
+        } else {
+            // Create a simple 1x1 pixel placeholder image
+            $img = imagecreate(1280, 720);
+            $bgColor = imagecolorallocate($img, 200, 200, 200);
+            imagejpeg($img, $placeholderPath, 80);
+            imagedestroy($img);
+        }
     }
 
     private function extractVideoMetadata(Video $video): void

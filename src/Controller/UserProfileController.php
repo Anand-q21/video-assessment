@@ -7,6 +7,7 @@ use App\Entity\User;
 use App\Repository\FollowRepository;
 use App\Repository\UserRepository;
 use App\Service\ApiResponseService;
+use App\Service\ValidationService;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -26,7 +27,8 @@ class UserProfileController extends AbstractController
         private UserRepository $userRepository,
         private FollowRepository $followRepository,
         private ValidatorInterface $validator,
-        private UserPasswordHasherInterface $passwordHasher
+        private UserPasswordHasherInterface $passwordHasher,
+        private ValidationService $validationService
     ) {}
 
     #[Route('/{id}', name: 'get_user_profile', methods: ['GET'])]
@@ -68,16 +70,57 @@ class UserProfileController extends AbstractController
     public function updateProfile(Request $request, #[CurrentUser] User $user): JsonResponse
     {
         $data = json_decode($request->getContent(), true);
+        
+        // Validate request body
+        $bodyErrors = $this->validationService->validateRequestBody($data);
+        if (!empty($bodyErrors)) {
+            return $this->apiResponse->error('Invalid request', $bodyErrors, 400);
+        }
 
         if (isset($data['username'])) {
-            $user->setUsername($data['username']);
+            $username = $this->validationService->sanitizeString($data['username']);
+            
+            // Validate username format
+            $usernameErrors = $this->validationService->validateUsername($username);
+            if (!empty($usernameErrors)) {
+                return $this->apiResponse->error('Validation failed', $usernameErrors, 422);
+            }
+            
+            // Check for duplicate username (if changing)
+            if ($username !== $user->getUsername()) {
+                $existingUser = $this->userRepository->findOneBy(['username' => $username]);
+                if ($existingUser) {
+                    return $this->apiResponse->error('Validation failed', ['Username already taken'], 422);
+                }
+            }
+            
+            $user->setUsername($username);
         }
+        
         if (isset($data['firstName'])) {
-            $user->setFirstName($data['firstName']);
+            $firstName = $this->validationService->sanitizeString($data['firstName']);
+            
+            // Validate firstName length
+            $firstNameErrors = $this->validationService->validateStringLength($firstName, 'First name', 1, 255);
+            if (!empty($firstNameErrors)) {
+                return $this->apiResponse->error('Validation failed', $firstNameErrors, 422);
+            }
+            
+            $user->setFirstName($firstName);
         }
+        
         if (isset($data['bio'])) {
-            $user->setBio($data['bio']);
+            $bio = $this->validationService->sanitizeString($data['bio']);
+            
+            // Validate bio length
+            $bioErrors = $this->validationService->validateStringLength($bio, 'Bio', 0, 500);
+            if (!empty($bioErrors)) {
+                return $this->apiResponse->error('Validation failed', $bioErrors, 422);
+            }
+            
+            $user->setBio($bio);
         }
+        
         if (isset($data['profilePicture'])) {
             $user->setProfilePicture($data['profilePicture']);
         }
@@ -244,9 +287,18 @@ class UserProfileController extends AbstractController
         $page = max(1, (int) $request->query->get('page', 1));
         $limit = min(50, max(1, (int) $request->query->get('limit', 20)));
 
+        // Validate minimum query length
         if (strlen($query) < 2) {
             return $this->apiResponse->error('Search query must be at least 2 characters', null, 400);
         }
+        
+        // Validate maximum query length
+        if (strlen($query) > 200) {
+            return $this->apiResponse->error('Search query must not exceed 200 characters', null, 400);
+        }
+        
+        // Sanitize query
+        $query = $this->validationService->sanitizeString($query);
 
         $users = $this->userRepository->searchUsers($query, $limit, ($page - 1) * $limit);
         $total = $this->userRepository->countSearchUsers($query);
